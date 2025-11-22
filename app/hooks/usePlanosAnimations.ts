@@ -1,10 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
+
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 interface UsePlanosAnimationsProps {
   sectionRef: HTMLElement | null;
@@ -19,7 +21,7 @@ export function usePlanosAnimations({
   toggleRef,
   cardsRefs
 }: UsePlanosAnimationsProps) {
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (typeof window === 'undefined') return;
     if (!sectionRef) return;
 
@@ -108,10 +110,11 @@ export function usePlanosAnimations({
       }
     }, sectionRef);
 
+    requestAnimationFrame(() => ScrollTrigger.refresh());
+
     return () => {
       ctx.revert();
     };
 
-    ScrollTrigger.refresh();
   }, [sectionRef, titleRef, toggleRef, cardsRefs]);
 }

@@ -1,10 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
+
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 interface AnimationRefs {
   navRef: HTMLDivElement | null;
@@ -18,7 +20,7 @@ interface AnimationRefs {
 }
 
 export function useHeroAnimations(refs: AnimationRefs) {
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (typeof window === 'undefined') return;
     
     const { navRef, titleRef, subtitleRef, buttonsRef, ellipsesRefs, containerRef, heroSectionRef, mainFrameRef } = refs;
@@ -153,7 +155,8 @@ export function useHeroAnimations(refs: AnimationRefs) {
       }
     }, containerRef);
 
-    ScrollTrigger.refresh();
+    // força recalcular posições após a renderização/hidratação
+    requestAnimationFrame(() => ScrollTrigger.refresh());
 
     return () => {
       ctx.revert();

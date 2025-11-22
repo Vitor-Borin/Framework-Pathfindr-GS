@@ -1,10 +1,12 @@
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
+
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 interface UseSobreAnimationsProps {
   sectionRef: HTMLElement | null;
@@ -29,7 +31,7 @@ export function useSobreAnimations({
   phoneRef,
   phoneBgRef
 }: UseSobreAnimationsProps) {
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (typeof window === 'undefined') return;
     if (!sectionRef) return;
 
@@ -255,10 +257,11 @@ export function useSobreAnimations({
       }
     }, sectionRef);
 
+    requestAnimationFrame(() => ScrollTrigger.refresh());
+
     return () => {
       ctx.revert();
     };
 
-    ScrollTrigger.refresh();
   }, [sectionRef, titleRef, subtitleRef, cardsRefs, titleRef2, subtitleRef2, cardsRefs2, phoneRef, phoneBgRef]);
 }
