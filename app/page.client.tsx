@@ -1,6 +1,7 @@
 'use client';
 
-import { useRef, useEffect, Suspense, lazy } from 'react';
+import { useRef, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import MainFrame from './components/MainFrame/MainFrame';
 import Navbar from './components/Navbar/Navbar';
 import Hero from './components/Hero/Hero';
@@ -8,10 +9,10 @@ import DownloadButtons from './components/DownloadButtons/DownloadButtons';
 import DecorativeCharacters from './components/DecorativeCharacters/DecorativeCharacters';
 import { useHeroAnimations } from './hooks/useHeroAnimations';
 
-const SobreSection = lazy(() => import('./components/Sobre/SobreSection'));
-const PlanosSection = lazy(() => import('./components/Planos/PlanosSection'));
-const FeedbacksSection = lazy(() => import('./components/Feedbacks/FeedbacksSection'));
-const Footer = lazy(() => import('./components/Footer/Footer'));
+const SobreSection = dynamic(() => import('./components/Sobre/SobreSection'), { ssr: false, loading: () => null });
+const PlanosSection = dynamic(() => import('./components/Planos/PlanosSection'), { ssr: false, loading: () => null });
+const FeedbacksSection = dynamic(() => import('./components/Feedbacks/FeedbacksSection'), { ssr: false, loading: () => null });
+const Footer = dynamic(() => import('./components/Footer/Footer'), { ssr: false, loading: () => null });
 
 export default function HomeClient() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -61,21 +62,10 @@ export default function HomeClient() {
         <DecorativeCharacters characterRefs={Array.from({ length: 6 }, (_, i) => createCharacterRef(i))} />
       </div>
       
-      <Suspense fallback={null}>
-        <SobreSection />
-      </Suspense>
-
-      <Suspense fallback={null}>
-        <PlanosSection />
-      </Suspense>
-
-      <Suspense fallback={null}>
-        <FeedbacksSection />
-      </Suspense>
-
-      <Suspense fallback={null}>
-        <Footer />
-      </Suspense>
+      <SobreSection />
+      <PlanosSection />
+      <FeedbacksSection />
+      <Footer />
     </div>
   );
 }
