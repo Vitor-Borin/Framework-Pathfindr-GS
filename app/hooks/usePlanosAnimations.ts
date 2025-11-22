@@ -112,4 +112,17 @@ export function usePlanosAnimations({
       ctx.revert();
     };
   }, [sectionRef]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!sectionRef) return;
+    
+    const refreshTimeout = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 500);
+
+    return () => {
+      clearTimeout(refreshTimeout);
+    };
+  }, [sectionRef]);
 }

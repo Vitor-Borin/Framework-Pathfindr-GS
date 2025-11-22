@@ -7,6 +7,7 @@ import Hero from './components/Hero/Hero';
 import DownloadButtons from './components/DownloadButtons/DownloadButtons';
 import DecorativeCharacters from './components/DecorativeCharacters/DecorativeCharacters';
 import { useHeroAnimations } from './hooks/useHeroAnimations';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 const SobreSection = lazy(() => import('./components/Sobre/SobreSection'));
 const PlanosSection = lazy(() => import('./components/Planos/PlanosSection'));
@@ -35,6 +36,53 @@ export default function Home() {
 
   useEffect(() => {
     ellipsesRefs.current = [];
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const refreshScrollTrigger = () => {
+      setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 300);
+    };
+
+    const handleLoad = () => {
+      refreshScrollTrigger();
+    };
+
+    if (document.readyState === 'complete') {
+      refreshScrollTrigger();
+    } else {
+      window.addEventListener('load', handleLoad);
+    }
+
+    const images = document.querySelectorAll('img');
+    let loadedImages = 0;
+    const totalImages = images.length;
+
+    if (totalImages > 0) {
+      images.forEach((img) => {
+        if (img.complete) {
+          loadedImages++;
+        } else {
+          img.addEventListener('load', () => {
+            loadedImages++;
+            if (loadedImages === totalImages) {
+              refreshScrollTrigger();
+            }
+          });
+        }
+      });
+
+      if (loadedImages === totalImages) {
+        refreshScrollTrigger();
+      }
+    }
+
+    return () => {
+      window.removeEventListener('load', handleLoad);
+    };
   }, []);
 
   const createCharacterRef = (index: number) => (el: HTMLDivElement | null) => {

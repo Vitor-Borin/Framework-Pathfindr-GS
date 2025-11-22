@@ -276,6 +276,19 @@ export default function FeedbacksSection() {
     };
   }, []);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (!containerRef.current) return;
+    
+    const refreshTimeout = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 500);
+
+    return () => {
+      clearTimeout(refreshTimeout);
+    };
+  }, []);
+
   const visibleCards = getVisibleCards();
 
   return (
