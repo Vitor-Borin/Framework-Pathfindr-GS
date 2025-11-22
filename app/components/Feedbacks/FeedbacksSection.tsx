@@ -112,12 +112,14 @@ const FeedbackCard = memo(({
         </div>
 
         <p className="text-[#666] text-[14px] leading-relaxed flex-1 overflow-y-auto">
-          "{data.text}"
+          &ldquo;{data.text}&rdquo;
         </p>
       </div>
     </div>
   );
 });
+
+FeedbackCard.displayName = 'FeedbackCard';
 
 export default function FeedbacksSection() {
   const containerRef = useRef<HTMLDivElement>(null);

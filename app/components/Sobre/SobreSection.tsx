@@ -76,6 +76,8 @@ const Card = memo(({ icon, text, iconAlt, index, cardRef, onClick }: CardProps) 
   );
 });
 
+Card.displayName = 'Card';
+
 interface SobreSectionProps {}
 
 export default function SobreSection({}: SobreSectionProps) {
@@ -494,3 +496,5 @@ const FeatureCard = memo(({ icon, title, description, iconAlt, cardRef }: Featur
     </div>
   );
 });
+
+FeatureCard.displayName = 'FeatureCard';

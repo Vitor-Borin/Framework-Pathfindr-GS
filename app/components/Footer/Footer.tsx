@@ -52,9 +52,9 @@ export default function Footer() {
               alt="PathFindr"
               fill
               className="object-contain object-bottom"
-              priority
               sizes="100vw"
               style={{ filter: 'blur(10px)' }}
+              loading="lazy"
             />
           </div>
 
@@ -70,9 +70,9 @@ export default function Footer() {
               alt="PathFindr"
               fill
               className="object-contain object-bottom"
-              priority
               sizes="100vw"
               style={{ filter: 'blur(8px)' }}
+              loading="lazy"
             />
           </div>
 
@@ -88,9 +88,9 @@ export default function Footer() {
               alt="PathFindr"
               fill
               className="object-contain object-bottom"
-              priority
               sizes="100vw"
               style={{ filter: 'blur(15px)' }}
+              loading="lazy"
             />
           </div>
 
@@ -106,9 +106,9 @@ export default function Footer() {
               alt="PathFindr"
               fill
               className="object-contain object-bottom"
-              priority
               sizes="100vw"
               style={{ filter: 'blur(25px)' }}
+              loading="lazy"
             />
           </div>
 
@@ -124,9 +124,9 @@ export default function Footer() {
               alt="PathFindr"
               fill
               className="object-contain object-bottom"
-              priority
               sizes="100vw"
               style={{ filter: 'blur(40px)' }}
+              loading="lazy"
             />
           </div>
         </div>
