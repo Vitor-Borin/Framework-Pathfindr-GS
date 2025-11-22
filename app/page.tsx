@@ -23,14 +23,13 @@ export default function Home() {
   const ellipsesRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useHeroAnimations({
-    navRef: navRef.current,
-    titleRef: heroRef.current?.querySelector('p:first-child') as HTMLParagraphElement | null,
-    subtitleRef: heroRef.current?.querySelector('p:last-child') as HTMLParagraphElement | null,
-    buttonsRef: buttonsRef.current,
-    ellipsesRefs: ellipsesRefs.current,
-    containerRef: containerRef.current,
-    heroSectionRef: heroSectionRef.current,
-    mainFrameRef: mainFrameRef.current,
+    navRef,
+    heroRef,
+    buttonsRef,
+    ellipsesRefs,
+    containerRef,
+    heroSectionRef,
+    mainFrameRef,
   });
 
   useEffect(() => {

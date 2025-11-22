@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import type React from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -7,15 +8,15 @@ if (typeof window !== 'undefined') {
 }
 
 interface UseSobreAnimationsProps {
-  sectionRef: HTMLElement | null;
-  titleRef: HTMLElement | null;
-  subtitleRef: HTMLElement | null;
-  cardsRefs: (HTMLElement | null)[];
-  titleRef2?: HTMLElement | null;
-  subtitleRef2?: HTMLElement | null;
-  cardsRefs2?: (HTMLElement | null)[];
-  phoneRef?: HTMLElement | null;
-  phoneBgRef?: HTMLElement | null;
+  sectionRef: React.RefObject<HTMLElement>;
+  titleRef: React.RefObject<HTMLElement>;
+  subtitleRef: React.RefObject<HTMLElement>;
+  cardsRefs: React.MutableRefObject<(HTMLElement | null)[]>;
+  titleRef2?: React.RefObject<HTMLElement>;
+  subtitleRef2?: React.RefObject<HTMLElement>;
+  cardsRefs2?: React.MutableRefObject<(HTMLElement | null)[]>;
+  phoneRef?: React.RefObject<HTMLElement>;
+  phoneBgRef?: React.RefObject<HTMLElement>;
 }
 
 export function useSobreAnimations({ 
@@ -31,20 +32,39 @@ export function useSobreAnimations({
 }: UseSobreAnimationsProps) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (!sectionRef) return;
+    
+    // Acessa os valores atuais dos refs dentro do effect
+    const sectionRefEl = sectionRef.current;
+    const titleRefEl = titleRef.current;
+    const subtitleRefEl = subtitleRef.current;
+    const cardsRefsEl = cardsRefs.current;
+    const titleRef2El = titleRef2?.current;
+    const subtitleRef2El = subtitleRef2?.current;
+    const cardsRefs2El = cardsRefs2?.current;
+    const phoneRefEl = phoneRef?.current;
+    const phoneBgRefEl = phoneBgRef?.current;
+    
+    if (!sectionRefEl) return;
 
     let ctx: gsap.Context | null = null;
+    let checkInterval: NodeJS.Timeout | null = null;
 
-    const initAnimations = () => {
-      if (!sectionRef) return;
+    const initAnimations = (): boolean => {
+      if (!sectionRefEl) return false;
+      
+      // Verifica se os elementos principais existem
+      if (!titleRefEl || !subtitleRefEl) return false;
+
+      // Se já foi inicializado, não inicializa novamente
+      if (ctx) return true;
 
       ctx = gsap.context(() => {
-      gsap.set([titleRef, subtitleRef].filter(Boolean), {
+      gsap.set([titleRefEl, subtitleRefEl].filter(Boolean), {
         opacity: 0,
         y: 50,
       });
 
-      cardsRefs.forEach((card, index) => {
+      cardsRefsEl.forEach((card, index) => {
         if (card) {
           const isEven = index % 2 === 0;
           gsap.set(card, {
@@ -57,13 +77,13 @@ export function useSobreAnimations({
         }
       });
 
-      if (titleRef) {
-        gsap.to(titleRef, {
+      if (titleRefEl) {
+        gsap.to(titleRefEl, {
           opacity: 1,
           y: 0,
           ease: "power3.out",
           scrollTrigger: {
-            trigger: titleRef,
+            trigger: titleRefEl,
             start: "top 85%",
             end: "top 60%",
             scrub: true,
@@ -72,13 +92,13 @@ export function useSobreAnimations({
         });
       }
 
-      if (subtitleRef) {
-        gsap.to(subtitleRef, {
+      if (subtitleRefEl) {
+        gsap.to(subtitleRefEl, {
           opacity: 1,
           y: 0,
           ease: "power3.out",
           scrollTrigger: {
-            trigger: subtitleRef,
+            trigger: subtitleRefEl,
             start: "top 85%",
             end: "top 60%",
             scrub: true,
@@ -87,7 +107,7 @@ export function useSobreAnimations({
         });
       }
 
-      const validCards = cardsRefs.filter(Boolean);
+      const validCards = cardsRefsEl.filter(Boolean);
       if (validCards.length > 0) {
         const firstCard = validCards[0];
         
@@ -118,22 +138,22 @@ export function useSobreAnimations({
         });
       }
 
-      if (titleRef2 || subtitleRef2 || (cardsRefs2 && cardsRefs2.length > 0) || phoneRef || phoneBgRef) {
-        if (titleRef2) {
-          gsap.set(titleRef2, {
+      if (titleRef2El || subtitleRef2El || (cardsRefs2El && cardsRefs2El.length > 0) || phoneRefEl || phoneBgRefEl) {
+        if (titleRef2El) {
+          gsap.set(titleRef2El, {
             opacity: 0,
             y: 50,
           });
         }
-        if (subtitleRef2) {
-          gsap.set(subtitleRef2, {
+        if (subtitleRef2El) {
+          gsap.set(subtitleRef2El, {
             opacity: 0,
             y: 50,
           });
         }
 
-        if (cardsRefs2) {
-          cardsRefs2.forEach((card, index) => {
+        if (cardsRefs2El) {
+          cardsRefs2El.forEach((card, index) => {
             if (card) {
               const fromX = index === 0 ? -100 : index === 1 ? 100 : index === 2 ? -100 : index === 3 ? 0 : index === 4 ? 0 : 100;
               const fromRotate = index % 2 === 0 ? -10 : 10;
@@ -149,27 +169,27 @@ export function useSobreAnimations({
           });
         }
 
-        if (phoneRef) {
-          gsap.set(phoneRef, {
+        if (phoneRefEl) {
+          gsap.set(phoneRefEl, {
             opacity: 0,
             y: 100,
             scale: 0.7,
           });
         }
-        if (phoneBgRef) {
-          gsap.set(phoneBgRef, {
+        if (phoneBgRefEl) {
+          gsap.set(phoneBgRefEl, {
             opacity: 0,
             scale: 0.7,
           });
         }
 
-        if (titleRef2) {
-          gsap.to(titleRef2, {
+        if (titleRef2El) {
+          gsap.to(titleRef2El, {
             opacity: 1,
             y: 0,
             ease: "power3.out",
             scrollTrigger: {
-              trigger: titleRef2,
+              trigger: titleRef2El,
               start: "top 85%",
               end: "top 60%",
               scrub: true,
@@ -178,13 +198,13 @@ export function useSobreAnimations({
           });
         }
 
-        if (subtitleRef2) {
-          gsap.to(subtitleRef2, {
+        if (subtitleRef2El) {
+          gsap.to(subtitleRef2El, {
             opacity: 1,
             y: 0,
             ease: "power3.out",
             scrollTrigger: {
-              trigger: subtitleRef2,
+              trigger: subtitleRef2El,
               start: "top 85%",
               end: "top 60%",
               scrub: true,
@@ -193,8 +213,8 @@ export function useSobreAnimations({
           });
         }
 
-        if (phoneRef || phoneBgRef) {
-          const triggerElement = phoneRef || phoneBgRef;
+        if (phoneRefEl || phoneBgRefEl) {
+          const triggerElement = phoneRefEl || phoneBgRefEl;
           if (triggerElement) {
             const phoneTimeline = gsap.timeline({
               scrollTrigger: {
@@ -206,8 +226,8 @@ export function useSobreAnimations({
               },
             });
 
-            if (phoneBgRef) {
-              phoneTimeline.to(phoneBgRef, {
+            if (phoneBgRefEl) {
+              phoneTimeline.to(phoneBgRefEl, {
                 opacity: 1,
                 scale: 1,
                 ease: "back.out(1.2)",
@@ -215,8 +235,8 @@ export function useSobreAnimations({
               }, 0);
             }
 
-            if (phoneRef) {
-              phoneTimeline.to(phoneRef, {
+            if (phoneRefEl) {
+              phoneTimeline.to(phoneRefEl, {
                 opacity: 1,
                 y: 0,
                 scale: 1,
@@ -227,8 +247,8 @@ export function useSobreAnimations({
           }
         }
 
-        if (cardsRefs2 && cardsRefs2.length > 0) {
-          const validCards2 = cardsRefs2.filter(Boolean);
+        if (cardsRefs2El && cardsRefs2El.length > 0) {
+          const validCards2 = cardsRefs2El.filter(Boolean);
           if (validCards2.length > 0) {
             const firstCard2 = validCards2[0];
             
@@ -258,7 +278,7 @@ export function useSobreAnimations({
           }
         }
       }
-      }, sectionRef);
+      }, sectionRefEl);
 
       // Força recalcular posições após a renderização/hidratação
       requestAnimationFrame(() => {
@@ -269,15 +289,40 @@ export function useSobreAnimations({
       setTimeout(() => {
         ScrollTrigger.refresh();
       }, 100);
+
+      return true;
     };
 
-    // Aguarda um frame para garantir que o DOM está pronto
-    const timeoutId = setTimeout(() => {
-      initAnimations();
-    }, 0);
+    // Verifica periodicamente se os elementos estão prontos
+    const tryInit = () => {
+      if (initAnimations()) {
+        if (checkInterval) {
+          clearInterval(checkInterval);
+          checkInterval = null;
+        }
+      }
+    };
+
+    // Tenta inicializar imediatamente
+    tryInit();
+
+    // Se não funcionou, tenta a cada 50ms até 2 segundos
+    checkInterval = setInterval(() => {
+      tryInit();
+    }, 50);
+
+    const maxWaitTimeout = setTimeout(() => {
+      if (checkInterval) {
+        clearInterval(checkInterval);
+        checkInterval = null;
+      }
+    }, 2000);
 
     return () => {
-      clearTimeout(timeoutId);
+      if (checkInterval) {
+        clearInterval(checkInterval);
+      }
+      clearTimeout(maxWaitTimeout);
       if (ctx) {
         ctx.revert();
       }

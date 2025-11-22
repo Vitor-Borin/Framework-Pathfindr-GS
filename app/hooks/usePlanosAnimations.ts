@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import type React from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -7,37 +8,55 @@ if (typeof window !== 'undefined') {
 }
 
 interface UsePlanosAnimationsProps {
-  sectionRef: HTMLElement | null;
-  titleRef: HTMLElement | null;
-  toggleRef: HTMLElement | null;
-  cardsRefs: (HTMLElement | null)[];
+  sectionRef: React.RefObject<HTMLElement>;
+  titleRef: React.RefObject<HTMLElement>;
+  toggleRef: React.RefObject<HTMLElement>;
+  card1Ref: React.RefObject<HTMLElement>;
+  card2Ref: React.RefObject<HTMLElement>;
+  card3Ref: React.RefObject<HTMLElement>;
 }
 
 export function usePlanosAnimations({ 
   sectionRef, 
   titleRef, 
   toggleRef,
-  cardsRefs
+  card1Ref,
+  card2Ref,
+  card3Ref
 }: UsePlanosAnimationsProps) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (!sectionRef) return;
+    
+    // Acessa os valores atuais dos refs dentro do effect
+    const sectionRefEl = sectionRef.current;
+    const titleRefEl = titleRef.current;
+    const toggleRefEl = toggleRef.current;
+    const cardsRefs = [card1Ref.current, card2Ref.current, card3Ref.current];
+    
+    if (!sectionRefEl) return;
 
     let ctx: gsap.Context | null = null;
+    let checkInterval: NodeJS.Timeout | null = null;
 
-    const initAnimations = () => {
-      if (!sectionRef) return;
+    const initAnimations = (): boolean => {
+      if (!sectionRefEl) return false;
+      
+      // Verifica se os elementos principais existem
+      if (!titleRefEl || !toggleRefEl) return false;
+
+      // Se já foi inicializado, não inicializa novamente
+      if (ctx) return true;
 
       ctx = gsap.context(() => {
-      if (titleRef) {
-        gsap.set(titleRef, {
+      if (titleRefEl) {
+        gsap.set(titleRefEl, {
           opacity: 0,
           y: 50,
         });
       }
 
-      if (toggleRef) {
-        gsap.set(toggleRef, {
+      if (toggleRefEl) {
+        gsap.set(toggleRefEl, {
           opacity: 0,
           scale: 0.8,
         });
@@ -54,13 +73,13 @@ export function usePlanosAnimations({
         }
       });
 
-      if (titleRef) {
-        gsap.to(titleRef, {
+      if (titleRefEl) {
+        gsap.to(titleRefEl, {
           opacity: 1,
           y: 0,
           ease: "power3.out",
           scrollTrigger: {
-            trigger: titleRef,
+            trigger: titleRefEl,
             start: "top 85%",
             end: "top 60%",
             scrub: true,
@@ -69,13 +88,13 @@ export function usePlanosAnimations({
         });
       }
 
-      if (toggleRef) {
-        gsap.to(toggleRef, {
+      if (toggleRefEl) {
+        gsap.to(toggleRefEl, {
           opacity: 1,
           scale: 1,
           ease: "back.out(1.2)",
           scrollTrigger: {
-            trigger: toggleRef,
+            trigger: toggleRefEl,
             start: "top 85%",
             end: "top 60%",
             scrub: true,
@@ -111,7 +130,7 @@ export function usePlanosAnimations({
           }
         });
       }
-      }, sectionRef);
+      }, sectionRefEl);
 
       // Força recalcular posições após a renderização/hidratação
       requestAnimationFrame(() => {
@@ -122,19 +141,44 @@ export function usePlanosAnimations({
       setTimeout(() => {
         ScrollTrigger.refresh();
       }, 100);
+
+      return true;
     };
 
-    // Aguarda um frame para garantir que o DOM está pronto
-    const timeoutId = setTimeout(() => {
-      initAnimations();
-    }, 0);
+    // Verifica periodicamente se os elementos estão prontos
+    const tryInit = () => {
+      if (initAnimations()) {
+        if (checkInterval) {
+          clearInterval(checkInterval);
+          checkInterval = null;
+        }
+      }
+    };
+
+    // Tenta inicializar imediatamente
+    tryInit();
+
+    // Se não funcionou, tenta a cada 50ms até 2 segundos
+    checkInterval = setInterval(() => {
+      tryInit();
+    }, 50);
+
+    const maxWaitTimeout = setTimeout(() => {
+      if (checkInterval) {
+        clearInterval(checkInterval);
+        checkInterval = null;
+      }
+    }, 2000);
 
     return () => {
-      clearTimeout(timeoutId);
+      if (checkInterval) {
+        clearInterval(checkInterval);
+      }
+      clearTimeout(maxWaitTimeout);
       if (ctx) {
         ctx.revert();
       }
     };
 
-  }, [sectionRef, titleRef, toggleRef, cardsRefs]);
+  }, [sectionRef, titleRef, toggleRef, card1Ref, card2Ref, card3Ref]);
 }

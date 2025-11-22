@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import type React from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -7,29 +8,45 @@ if (typeof window !== 'undefined') {
 }
 
 interface AnimationRefs {
-  navRef: HTMLDivElement | null;
-  titleRef: HTMLParagraphElement | null;
-  subtitleRef: HTMLParagraphElement | null;
-  buttonsRef: HTMLDivElement | null;
-  ellipsesRefs: (HTMLDivElement | null)[];
-  containerRef: HTMLDivElement | null;
-  heroSectionRef: HTMLDivElement | null;
-  mainFrameRef: HTMLDivElement | null;
+  navRef: React.RefObject<HTMLDivElement>;
+  heroRef: React.RefObject<HTMLDivElement>;
+  buttonsRef: React.RefObject<HTMLDivElement>;
+  ellipsesRefs: React.MutableRefObject<(HTMLDivElement | null)[]>;
+  containerRef: React.RefObject<HTMLDivElement>;
+  heroSectionRef: React.RefObject<HTMLDivElement>;
+  mainFrameRef: React.RefObject<HTMLDivElement>;
 }
 
 export function useHeroAnimations(refs: AnimationRefs) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
-    const { navRef, titleRef, subtitleRef, buttonsRef, ellipsesRefs, containerRef, heroSectionRef, mainFrameRef } = refs;
+    // Acessa os valores atuais dos refs dentro do effect
+    const navRef = refs.navRef.current;
+    const heroRef = refs.heroRef.current;
+    const titleRef = heroRef?.querySelector('p:first-child') as HTMLParagraphElement | null;
+    const subtitleRef = heroRef?.querySelector('p:last-child') as HTMLParagraphElement | null;
+    const buttonsRef = refs.buttonsRef.current;
+    const ellipsesRefs = refs.ellipsesRefs.current;
+    const containerRef = refs.containerRef.current;
+    const heroSectionRef = refs.heroSectionRef.current;
+    const mainFrameRef = refs.mainFrameRef.current;
 
-    if (!containerRef) return;
-
-    // Aguarda a hidratação completa
+    // Aguarda a hidratação completa e verifica se os elementos existem
     let ctx: gsap.Context | null = null;
+    let checkInterval: NodeJS.Timeout | null = null;
     
-    const initAnimations = () => {
-      if (!containerRef) return;
+    const initAnimations = (): boolean => {
+      // Verifica se todos os elementos necessários estão presentes
+      if (!containerRef || !heroSectionRef) return false;
+      
+      // Verifica se os elementos principais existem no DOM
+      if (!titleRef || !subtitleRef || !buttonsRef || !navRef) {
+        return false;
+      }
+
+      // Se já foi inicializado, não inicializa novamente
+      if (ctx) return true;
 
       ctx = gsap.context(() => {
       gsap.set([titleRef, subtitleRef, buttonsRef].filter(Boolean), {
@@ -168,19 +185,44 @@ export function useHeroAnimations(refs: AnimationRefs) {
       setTimeout(() => {
         ScrollTrigger.refresh();
       }, 100);
+
+      return true;
     };
 
-    // Aguarda um frame para garantir que o DOM está pronto
-    const timeoutId = setTimeout(() => {
-      initAnimations();
-    }, 0);
+    // Verifica periodicamente se os elementos estão prontos
+    const tryInit = () => {
+      if (initAnimations()) {
+        if (checkInterval) {
+          clearInterval(checkInterval);
+          checkInterval = null;
+        }
+      }
+    };
+
+    // Tenta inicializar imediatamente
+    tryInit();
+
+    // Se não funcionou, tenta a cada 50ms até 2 segundos
+    checkInterval = setInterval(() => {
+      tryInit();
+    }, 50);
+
+    const maxWaitTimeout = setTimeout(() => {
+      if (checkInterval) {
+        clearInterval(checkInterval);
+        checkInterval = null;
+      }
+    }, 2000);
 
     return () => {
-      clearTimeout(timeoutId);
+      if (checkInterval) {
+        clearInterval(checkInterval);
+      }
+      clearTimeout(maxWaitTimeout);
       if (ctx) {
         ctx.revert();
       }
       ScrollTrigger.clearScrollMemory?.();
     };
-  }, [refs]);
+  }, [refs.navRef, refs.heroRef, refs.buttonsRef, refs.containerRef, refs.heroSectionRef, refs.mainFrameRef, refs.ellipsesRefs]);
 }

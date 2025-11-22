@@ -278,15 +278,15 @@ export default function SobreSection({}: SobreSectionProps) {
   };
 
   useSobreAnimations({
-    sectionRef: sectionRef.current,
-    titleRef: titleRef.current,
-    subtitleRef: subtitleRef.current,
-    cardsRefs: cardsRefs.current,
-    titleRef2: titleRef2.current,
-    subtitleRef2: subtitleRef2.current,
-    cardsRefs2: cardsRefs2.current,
-    phoneRef: phoneRef.current,
-    phoneBgRef: phoneBgRef.current,
+    sectionRef,
+    titleRef,
+    subtitleRef,
+    cardsRefs,
+    titleRef2,
+    subtitleRef2,
+    cardsRefs2,
+    phoneRef,
+    phoneBgRef,
   });
 
   return (

@@ -18,10 +18,12 @@ export default function PlanosSection({}: PlanosSectionProps) {
   const card3Ref = useRef<HTMLDivElement>(null);
 
   usePlanosAnimations({
-    sectionRef: sectionRef.current,
-    titleRef: titleRef.current,
-    toggleRef: toggleRef.current,
-    cardsRefs: [card1Ref.current, card2Ref.current, card3Ref.current],
+    sectionRef,
+    titleRef,
+    toggleRef,
+    card1Ref,
+    card2Ref,
+    card3Ref,
   });
 
   return (
