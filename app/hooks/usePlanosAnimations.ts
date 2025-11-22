@@ -1,12 +1,10 @@
-import { useEffect, useLayoutEffect } from 'react';
+import { useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
-
-const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 interface UsePlanosAnimationsProps {
   sectionRef: HTMLElement | null;
@@ -21,11 +19,16 @@ export function usePlanosAnimations({
   toggleRef,
   cardsRefs
 }: UsePlanosAnimationsProps) {
-  useIsomorphicLayoutEffect(() => {
+  useEffect(() => {
     if (typeof window === 'undefined') return;
     if (!sectionRef) return;
 
-    const ctx = gsap.context(() => {
+    let ctx: gsap.Context | null = null;
+
+    const initAnimations = () => {
+      if (!sectionRef) return;
+
+      ctx = gsap.context(() => {
       if (titleRef) {
         gsap.set(titleRef, {
           opacity: 0,
@@ -108,12 +111,29 @@ export function usePlanosAnimations({
           }
         });
       }
-    }, sectionRef);
+      }, sectionRef);
 
-    requestAnimationFrame(() => ScrollTrigger.refresh());
+      // Força recalcular posições após a renderização/hidratação
+      requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+      });
+
+      // Refresh adicional após um pequeno delay para garantir que tudo está renderizado
+      setTimeout(() => {
+        ScrollTrigger.refresh();
+      }, 100);
+    };
+
+    // Aguarda um frame para garantir que o DOM está pronto
+    const timeoutId = setTimeout(() => {
+      initAnimations();
+    }, 0);
 
     return () => {
-      ctx.revert();
+      clearTimeout(timeoutId);
+      if (ctx) {
+        ctx.revert();
+      }
     };
 
   }, [sectionRef, titleRef, toggleRef, cardsRefs]);
