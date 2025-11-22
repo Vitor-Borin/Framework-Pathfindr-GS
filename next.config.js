@@ -8,6 +8,7 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: false,
   },
+  reactStrictMode: true,
 }
 
 module.exports = nextConfig

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, Suspense, lazy } from 'react';
+import { useRef, useEffect, Suspense, lazy, useState } from 'react';
 import MainFrame from './components/MainFrame/MainFrame';
 import Navbar from './components/Navbar/Navbar';
 import Hero from './components/Hero/Hero';
@@ -15,6 +15,7 @@ const FeedbacksSection = lazy(() => import('./components/Feedbacks/FeedbacksSect
 const Footer = lazy(() => import('./components/Footer/Footer'));
 
 export default function Home() {
+  const [isMounted, setIsMounted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const heroSectionRef = useRef<HTMLDivElement>(null);
   const mainFrameRef = useRef<HTMLDivElement>(null);
@@ -22,6 +23,10 @@ export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
   const buttonsRef = useRef<HTMLDivElement>(null);
   const ellipsesRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useHeroAnimations({
     navRef: navRef.current,
@@ -39,51 +44,47 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || !isMounted) return;
 
     const refreshScrollTrigger = () => {
-      setTimeout(() => {
+      if (typeof window !== 'undefined' && ScrollTrigger) {
         ScrollTrigger.refresh();
-      }, 300);
-    };
-
-    const handleLoad = () => {
-      refreshScrollTrigger();
-    };
-
-    if (document.readyState === 'complete') {
-      refreshScrollTrigger();
-    } else {
-      window.addEventListener('load', handleLoad);
-    }
-
-    const images = document.querySelectorAll('img');
-    let loadedImages = 0;
-    const totalImages = images.length;
-
-    if (totalImages > 0) {
-      images.forEach((img) => {
-        if (img.complete) {
-          loadedImages++;
-        } else {
-          img.addEventListener('load', () => {
-            loadedImages++;
-            if (loadedImages === totalImages) {
-              refreshScrollTrigger();
-            }
-          });
-        }
-      });
-
-      if (loadedImages === totalImages) {
-        refreshScrollTrigger();
       }
+    };
+
+    const initializeAnimations = () => {
+      setTimeout(() => {
+        refreshScrollTrigger();
+      }, 100);
+      
+      setTimeout(() => {
+        refreshScrollTrigger();
+      }, 500);
+      
+      setTimeout(() => {
+        refreshScrollTrigger();
+      }, 1000);
+    };
+
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      initializeAnimations();
+    } else {
+      window.addEventListener('load', initializeAnimations);
     }
+
+    const refreshInterval = setInterval(() => {
+      refreshScrollTrigger();
+    }, 2000);
+
+    setTimeout(() => {
+      clearInterval(refreshInterval);
+    }, 10000);
 
     return () => {
-      window.removeEventListener('load', handleLoad);
+      window.removeEventListener('load', initializeAnimations);
+      clearInterval(refreshInterval);
     };
-  }, []);
+  }, [isMounted]);
 
   const createCharacterRef = (index: number) => (el: HTMLDivElement | null) => {
     ellipsesRefs.current[index] = el;
