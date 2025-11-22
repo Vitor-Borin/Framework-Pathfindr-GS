@@ -27,7 +27,6 @@ export function useFeedbacksAnimations({
     if (!sectionRef) return;
 
     const ctx = gsap.context(() => {
-      // Set initial states
       if (envelopeClosedRef) {
         gsap.set(envelopeClosedRef, {
           opacity: 1,
@@ -60,7 +59,6 @@ export function useFeedbacksAnimations({
         });
       }
 
-      // Create master timeline with scroll trigger
       const masterTimeline = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef,
@@ -71,7 +69,6 @@ export function useFeedbacksAnimations({
         },
       });
 
-      // Step 1: Envelope opens (flip animation with scale)
       if (envelopeClosedRef && envelopeOpenRef) {
         masterTimeline
           .to(envelopeClosedRef, {
@@ -101,7 +98,6 @@ export function useFeedbacksAnimations({
           );
       }
 
-      // Step 2: First testimonial comes out of envelope (slides up and out)
       if (firstTestimonialRef && envelopeOpenRef) {
         masterTimeline.to(
           firstTestimonialRef,
@@ -118,7 +114,6 @@ export function useFeedbacksAnimations({
         );
       }
 
-      // Step 3: Envelope disappears and carousel appears
       if (envelopeOpenRef && testimonialsContainerRef && firstTestimonialRef) {
         masterTimeline
           .to(
@@ -160,7 +155,6 @@ export function useFeedbacksAnimations({
           );
       }
 
-      // Animate stars (subtle floating)
       if (starsRef) {
         gsap.to(starsRef, {
           y: '+=20',
