@@ -153,8 +153,11 @@ export function useHeroAnimations(refs: AnimationRefs) {
       }
     }, containerRef);
 
+    ScrollTrigger.refresh();
+
     return () => {
       ctx.revert();
+      ScrollTrigger.clearScrollMemory?.();
     };
-  }, [refs.containerRef, refs.heroSectionRef]);
+  }, [refs]);
 }

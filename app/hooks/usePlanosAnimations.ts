@@ -112,5 +112,6 @@ export function usePlanosAnimations({
       ctx.revert();
     };
 
-  }, [sectionRef]);
+    ScrollTrigger.refresh();
+  }, [sectionRef, titleRef, toggleRef, cardsRefs]);
 }

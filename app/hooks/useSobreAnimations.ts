@@ -259,5 +259,6 @@ export function useSobreAnimations({
       ctx.revert();
     };
 
-  }, [sectionRef]);
+    ScrollTrigger.refresh();
+  }, [sectionRef, titleRef, subtitleRef, cardsRefs, titleRef2, subtitleRef2, cardsRefs2, phoneRef, phoneBgRef]);
 }
