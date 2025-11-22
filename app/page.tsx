@@ -13,6 +13,9 @@ const PlanosSection = lazy(() => import('./components/Planos/PlanosSection'));
 const FeedbacksSection = lazy(() => import('./components/Feedbacks/FeedbacksSection'));
 const Footer = lazy(() => import('./components/Footer/Footer'));
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
   const heroSectionRef = useRef<HTMLDivElement>(null);
