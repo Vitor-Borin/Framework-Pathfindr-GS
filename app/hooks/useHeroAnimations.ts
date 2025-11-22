@@ -157,16 +157,4 @@ export function useHeroAnimations(refs: AnimationRefs) {
       ctx.revert();
     };
   }, [refs.containerRef, refs.heroSectionRef]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    
-    const refreshTimeout = setTimeout(() => {
-      ScrollTrigger.refresh();
-    }, 500);
-
-    return () => {
-      clearTimeout(refreshTimeout);
-    };
-  }, [refs.containerRef, refs.heroSectionRef]);
 }

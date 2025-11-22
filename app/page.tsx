@@ -1,13 +1,12 @@
 'use client';
 
-import { useRef, useEffect, Suspense, lazy, useState } from 'react';
+import { useRef, useEffect, Suspense, lazy } from 'react';
 import MainFrame from './components/MainFrame/MainFrame';
 import Navbar from './components/Navbar/Navbar';
 import Hero from './components/Hero/Hero';
 import DownloadButtons from './components/DownloadButtons/DownloadButtons';
 import DecorativeCharacters from './components/DecorativeCharacters/DecorativeCharacters';
 import { useHeroAnimations } from './hooks/useHeroAnimations';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
 const SobreSection = lazy(() => import('./components/Sobre/SobreSection'));
 const PlanosSection = lazy(() => import('./components/Planos/PlanosSection'));
@@ -15,7 +14,6 @@ const FeedbacksSection = lazy(() => import('./components/Feedbacks/FeedbacksSect
 const Footer = lazy(() => import('./components/Footer/Footer'));
 
 export default function Home() {
-  const [isMounted, setIsMounted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const heroSectionRef = useRef<HTMLDivElement>(null);
   const mainFrameRef = useRef<HTMLDivElement>(null);
@@ -23,10 +21,6 @@ export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
   const buttonsRef = useRef<HTMLDivElement>(null);
   const ellipsesRefs = useRef<(HTMLDivElement | null)[]>([]);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   useHeroAnimations({
     navRef: navRef.current,
@@ -42,49 +36,6 @@ export default function Home() {
   useEffect(() => {
     ellipsesRefs.current = [];
   }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || !isMounted) return;
-
-    const refreshScrollTrigger = () => {
-      if (typeof window !== 'undefined' && ScrollTrigger) {
-        ScrollTrigger.refresh();
-      }
-    };
-
-    const initializeAnimations = () => {
-      setTimeout(() => {
-        refreshScrollTrigger();
-      }, 100);
-      
-      setTimeout(() => {
-        refreshScrollTrigger();
-      }, 500);
-      
-      setTimeout(() => {
-        refreshScrollTrigger();
-      }, 1000);
-    };
-
-    if (document.readyState === 'complete' || document.readyState === 'interactive') {
-      initializeAnimations();
-    } else {
-      window.addEventListener('load', initializeAnimations);
-    }
-
-    const refreshInterval = setInterval(() => {
-      refreshScrollTrigger();
-    }, 2000);
-
-    setTimeout(() => {
-      clearInterval(refreshInterval);
-    }, 10000);
-
-    return () => {
-      window.removeEventListener('load', initializeAnimations);
-      clearInterval(refreshInterval);
-    };
-  }, [isMounted]);
 
   const createCharacterRef = (index: number) => (el: HTMLDivElement | null) => {
     ellipsesRefs.current[index] = el;
